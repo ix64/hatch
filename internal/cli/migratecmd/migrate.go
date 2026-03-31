@@ -14,6 +14,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ix64/hatch/internal/cli/cmdutil"
 	"github.com/ix64/hatch/internal/cli/projectmeta"
 )
 
@@ -159,7 +160,7 @@ func generateSchemaDump(projectDir string, spec projectmeta.ProjectSpec) error {
 	cmd.Stderr = os.Stderr
 
 	fmt.Println(strings.Repeat("=", 40))
-	fmt.Printf("%s > %s\n", displayShellCommand(cmd), filepath.ToSlash(filepath.Join(spec.Paths.CompositeDir, defaultSchemaDumpName)))
+	fmt.Printf("%s > %s\n", cmdutil.DisplayShellCommand(cmd), filepath.ToSlash(filepath.Join(spec.Paths.CompositeDir, defaultSchemaDumpName)))
 	fmt.Println(strings.Repeat("=", 40))
 
 	if err := cmd.Run(); err != nil {
@@ -215,7 +216,7 @@ func formatMigrationFile(projectDir, migrationFile string) error {
 	containerPath := filepath.ToSlash(filepath.Join("/work", migrationFile))
 	args = append(args,
 		"--entrypoint", "sh",
-		"backplane/pgformatter",
+		"backplane/pgformatter:latest",
 		"-c", fmt.Sprintf("pg_format -i %s", strconv.Quote(containerPath)),
 	)
 	return runCommand(projectDir, "docker", args...)
@@ -245,7 +246,7 @@ func runCommand(projectDir, name string, args ...string) error {
 	cmd.Stderr = os.Stderr
 
 	fmt.Println(strings.Repeat("=", 40))
-	fmt.Println(displayShellCommand(cmd))
+	fmt.Println(cmdutil.DisplayShellCommand(cmd))
 	fmt.Println(strings.Repeat("=", 40))
 
 	if err := cmd.Run(); err != nil {
@@ -254,14 +255,3 @@ func runCommand(projectDir, name string, args ...string) error {
 	return nil
 }
 
-func displayShellCommand(cmd *exec.Cmd) string {
-	items := make([]string, 0, len(cmd.Args))
-	for _, arg := range cmd.Args {
-		if strings.ContainsAny(arg, " \t\n\"") {
-			items = append(items, strconv.Quote(arg))
-			continue
-		}
-		items = append(items, arg)
-	}
-	return strings.Join(items, " ")
-}

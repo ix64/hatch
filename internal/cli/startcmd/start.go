@@ -6,11 +6,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/ix64/hatch/internal/cli/cmdutil"
 	"github.com/ix64/hatch/internal/cli/projectmeta"
 )
 
@@ -53,7 +53,7 @@ func run(opts options) error {
 	cmd.Stdin = os.Stdin
 
 	fmt.Println(strings.Repeat("=", 40))
-	fmt.Println(displayShellCommand(cmd))
+	fmt.Println(cmdutil.DisplayShellCommand(cmd))
 	fmt.Println(strings.Repeat("=", 40))
 
 	if err := cmd.Run(); err != nil {
@@ -102,14 +102,3 @@ func normalizeBinaryPath(path string) string {
 	return path
 }
 
-func displayShellCommand(cmd *exec.Cmd) string {
-	items := make([]string, 0, len(cmd.Args))
-	for _, arg := range cmd.Args {
-		if strings.ContainsAny(arg, " \t\n\"") {
-			items = append(items, strconv.Quote(arg))
-			continue
-		}
-		items = append(items, arg)
-	}
-	return strings.Join(items, " ")
-}

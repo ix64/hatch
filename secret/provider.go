@@ -21,7 +21,7 @@ func NewStoreProvider(lc fx.Lifecycle, logger *zap.Logger, cfg Config) (Store, e
 		CACertFile:    cfg.CACertFile,
 		CAPath:        cfg.CAPath,
 		TLSServerName: cfg.TLSServerName,
-		Timeout:       cfg.Timeout(),
+		Timeout:       cfg.Timeout,
 	})
 	if err != nil {
 		return nil, err

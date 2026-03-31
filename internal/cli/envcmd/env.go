@@ -5,11 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/ix64/hatch/internal/cli/cmdutil"
 	"github.com/ix64/hatch/internal/cli/projectmeta"
 )
 
@@ -88,7 +88,7 @@ func run(action string, opts options) error {
 	cmd.Stdin = os.Stdin
 
 	fmt.Println(strings.Repeat("=", 40))
-	fmt.Println(displayShellCommand(cmd))
+	fmt.Println(cmdutil.DisplayShellCommand(cmd))
 	fmt.Println(strings.Repeat("=", 40))
 
 	if err := cmd.Run(); err != nil {
@@ -141,14 +141,3 @@ func resolveExecution(action string, opts options, lookPath func(string) (string
 	}, nil
 }
 
-func displayShellCommand(cmd *exec.Cmd) string {
-	items := make([]string, 0, len(cmd.Args))
-	for _, arg := range cmd.Args {
-		if strings.ContainsAny(arg, " \t\n\"") {
-			items = append(items, strconv.Quote(arg))
-			continue
-		}
-		items = append(items, arg)
-	}
-	return strings.Join(items, " ")
-}

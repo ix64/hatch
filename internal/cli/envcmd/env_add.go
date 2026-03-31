@@ -394,7 +394,7 @@ address = "http://localhost:28200"
 token = %q
 kv_mount = "secret"
 insecure = false
-timeout_seconds = 5`, openbaoToken(spec))
+timeout = "5s"`, openbaoToken(spec))
 }
 
 func mailpitConfigSnippet(spec projectmeta.ProjectSpec) string {

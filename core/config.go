@@ -87,19 +87,3 @@ func LoadConfig[T any](vp *viper.Viper, opts LoadConfigOptions[T]) (*T, error) {
 
 	return &cfg, nil
 }
-
-// InitViper is deprecated. Prefer NewViper and pass the resulting instance explicitly.
-func InitViper(cfgFile string, opts ConfigOptions) error {
-	vp, err := NewViper(cfgFile, opts)
-	if err != nil {
-		return err
-	}
-
-	for _, key := range vp.AllKeys() {
-		viper.Set(key, vp.Get(key))
-	}
-	if used := vp.ConfigFileUsed(); used != "" {
-		viper.SetConfigFile(used)
-	}
-	return nil
-}

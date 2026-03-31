@@ -6,12 +6,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/ix64/hatch/internal/cli/cmdutil"
 	"github.com/ix64/hatch/internal/cli/projectmeta"
 )
 
@@ -135,7 +135,7 @@ func runGoCommand(projectDir string, args ...string) error {
 	cmd.Stderr = os.Stderr
 
 	fmt.Println(strings.Repeat("=", 40))
-	fmt.Println(displayShellCommand(cmd))
+	fmt.Println(cmdutil.DisplayShellCommand(cmd))
 	fmt.Println(strings.Repeat("=", 40))
 
 	if err := cmd.Run(); err != nil {
@@ -144,14 +144,3 @@ func runGoCommand(projectDir string, args ...string) error {
 	return nil
 }
 
-func displayShellCommand(cmd *exec.Cmd) string {
-	items := make([]string, 0, len(cmd.Args))
-	for _, arg := range cmd.Args {
-		if strings.ContainsAny(arg, " \t\n\"") {
-			items = append(items, strconv.Quote(arg))
-			continue
-		}
-		items = append(items, arg)
-	}
-	return strings.Join(items, " ")
-}

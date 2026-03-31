@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewServiceProvider(lc fx.Lifecycle, logger *zap.Logger, cfg Config) (*Service, error) {
+func NewServiceProvider(lc fx.Lifecycle, logger *zap.Logger, cfg Config) (Service, error) {
 	logger = logger.Named("init:object_storage")
 
 	if !cfg.Enabled {
