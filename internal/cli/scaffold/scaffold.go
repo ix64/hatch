@@ -64,7 +64,7 @@ func WriteProject(projectDir string, spec projectmeta.ProjectSpec) error {
 			return err
 		}
 	}
-	if err := writeFile(projectDir, filepath.ToSlash(filepath.Join(spec.Paths.MigrationsDir, "atlas.sum")), "h1:placeholder\n"); err != nil {
+	if err := writeFile(projectDir, filepath.ToSlash(filepath.Join(spec.Paths.MigrationsDir, "atlas.sum")), "h1:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\n"); err != nil {
 		return err
 	}
 
