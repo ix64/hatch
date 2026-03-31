@@ -21,6 +21,7 @@ require (
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/mod v0.34.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -56,7 +57,6 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
