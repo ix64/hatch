@@ -110,7 +110,7 @@ func RunMigrations(lc fx.Lifecycle, cfg Config, logger *zap.Logger, migrations f
 
 			if cfg.Migrate {
 				if err := ApplyMigrations(ctx, logger, dsn, migrations); err != nil {
-					return fmt.Errorf("check migration failed: %w", err)
+					return fmt.Errorf("apply migration failed: %w", err)
 				}
 			} else {
 				if ok, err := AssertMigrations(ctx, logger, dsn, migrations); err != nil {
