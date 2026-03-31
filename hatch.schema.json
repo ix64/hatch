@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "ent": {
+      "additionalProperties": false,
+      "description": "Ent feature flags applied during code generation.",
+      "properties": {
+        "features": {
+          "default": [
+            "intercept",
+            "sql/versioned-migration",
+            "sql/modifier",
+            "sql/execquery",
+            "sql/upsert"
+          ],
+          "description": "Ent feature flags enabled for the project.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "paths": {
+      "additionalProperties": false,
+      "description": "Path configuration for generated project files and directories.",
+      "properties": {
+        "atlas_file": {
+          "default": "atlas.hcl",
+          "description": "Atlas environment configuration file.",
+          "examples": [
+            "atlas.hcl"
+          ],
+          "type": "string"
+        },
+        "buf_gen_file": {
+          "deprecated": true,
+          "description": "Legacy path field retained for backward compatibility.",
+          "type": "string"
+        },
+        "build_output": {
+          "description": "Build output path for the compiled application binary.",
+          "examples": [
+            "build/demo"
+          ],
+          "type": "string"
+        },
+        "composite_dir": {
+          "default": "ddl/composite",
+          "description": "Directory containing composite schema dumps for Atlas diffs.",
+          "examples": [
+            "ddl/composite"
+          ],
+          "type": "string"
+        },
+        "config_example": {
+          "default": "config.toml.example",
+          "description": "Example config file path committed to the repository.",
+          "examples": [
+            "config.toml.example"
+          ],
+          "type": "string"
+        },
+        "config_file": {
+          "default": "config.toml",
+          "description": "Runtime config file path.",
+          "examples": [
+            "config.toml"
+          ],
+          "type": "string"
+        },
+        "dev_compose": {
+          "default": "dev/compose.yaml",
+          "description": "Docker Compose file used by hatch env commands.",
+          "examples": [
+            "dev/compose.yaml"
+          ],
+          "type": "string"
+        },
+        "ent_dir": {
+          "default": "ddl/ent",
+          "description": "Directory where generated Ent code is written.",
+          "examples": [
+            "ddl/ent"
+          ],
+          "type": "string"
+        },
+        "main_package": {
+          "default": "./cmd/server",
+          "description": "Main server package used by build and dev commands.",
+          "examples": [
+            "./cmd/server"
+          ],
+          "type": "string"
+        },
+        "migrations_dir": {
+          "default": "ddl/migrations",
+          "description": "Directory containing Atlas migration files.",
+          "examples": [
+            "ddl/migrations"
+          ],
+          "type": "string"
+        },
+        "rpc_dir": {
+          "deprecated": true,
+          "description": "Legacy proto output directory field. Prefer [proto].out_dir in new files.",
+          "type": "string"
+        },
+        "schema_dir": {
+          "default": "ddl/schema",
+          "description": "Directory containing Ent schema source files.",
+          "examples": [
+            "ddl/schema"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "proto": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "git"
+              }
+            },
+            "required": [
+              "source"
+            ]
+          },
+          "then": {
+            "required": [
+              "git_repo"
+            ]
+          }
+        }
+      ],
+      "description": "Proto source configuration used by hatch gen rpc.",
+      "properties": {
+        "dir": {
+          "default": "proto",
+          "description": "Directory containing local proto source files.",
+          "examples": [
+            "proto"
+          ],
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "description": "Whether RPC generation is enabled for the project.",
+          "type": "boolean"
+        },
+        "git_branch": {
+          "default": "main",
+          "description": "Git branch used when proto.source is git.",
+          "examples": [
+            "main"
+          ],
+          "type": "string"
+        },
+        "git_repo": {
+          "description": "Git repository URL used when proto.source is git.",
+          "examples": [
+            "https://github.com/acme/contracts.git"
+          ],
+          "type": "string"
+        },
+        "local_override_dir": {
+          "description": "Optional local directory that overrides a git-based proto source on the current machine.",
+          "examples": [
+            "../contracts"
+          ],
+          "type": "string"
+        },
+        "out_dir": {
+          "default": "rpc",
+          "description": "Directory where generated RPC code is written.",
+          "examples": [
+            "rpc"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "default": "local",
+          "description": "Where proto sources come from.",
+          "enum": [
+            "local",
+            "git"
+          ],
+          "examples": [
+            "local"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "run": {
+      "additionalProperties": false,
+      "description": "Default command arguments used by hatch start and hatch dev.",
+      "properties": {
+        "command": {
+          "default": [
+            "serve"
+          ],
+          "description": "Command and arguments passed to the generated server binary.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/ix64/hatch/raw/main/hatch.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Schema for hatch.toml and hatch.local.toml files consumed by the hatch CLI.",
+  "properties": {
+    "app_name": {
+      "description": "Human-friendly application name shown in generated docs and CLI output.",
+      "examples": [
+        "Demo Service"
+      ],
+      "type": "string"
+    },
+    "binary_name": {
+      "description": "Binary name used for build output and generated scripts.",
+      "examples": [
+        "demo"
+      ],
+      "type": "string"
+    },
+    "ent": {
+      "$ref": "#/$defs/ent"
+    },
+    "go_version": {
+      "default": "1.26.0",
+      "description": "Go toolchain version used by generated projects.",
+      "examples": [
+        "1.26.0"
+      ],
+      "type": "string"
+    },
+    "hatch_module_path": {
+      "default": "github.com/ix64/hatch",
+      "description": "Module path for the hatch framework dependency.",
+      "examples": [
+        "github.com/ix64/hatch"
+      ],
+      "type": "string"
+    },
+    "hatch_replace_path": {
+      "description": "Optional local replace path used during hatch development.",
+      "examples": [
+        "/path/to/hatch"
+      ],
+      "type": "string"
+    },
+    "hatch_version": {
+      "default": "latest",
+      "description": "Version selector for the hatch framework dependency in generated go.mod files.",
+      "examples": [
+        "latest"
+      ],
+      "type": "string"
+    },
+    "module_path": {
+      "description": "Go module path for the application, for example example.com/acme/demo.",
+      "examples": [
+        "example.com/acme/demo"
+      ],
+      "type": "string"
+    },
+    "paths": {
+      "$ref": "#/$defs/paths"
+    },
+    "proto": {
+      "$ref": "#/$defs/proto"
+    },
+    "proto_enabled": {
+      "deprecated": true,
+      "description": "Legacy top-level proto enable flag. Prefer [proto].enabled in new files.",
+      "type": "boolean"
+    },
+    "run": {
+      "$ref": "#/$defs/run"
+    }
+  },
+  "title": "Hatch Project Metadata",
+  "type": "object"
+}
