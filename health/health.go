@@ -2,6 +2,7 @@ package health
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"go.uber.org/fx"
@@ -33,16 +34,26 @@ func NewRoute(params probeParams) httpserver.Route {
 }
 
 func (r *probeRoute) Register(mux *http.ServeMux) {
-	mux.Handle("GET /healthz", httpserver.Adapt(func(w http.ResponseWriter, req *http.Request) error {
-		return httpserver.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
-	}))
-	mux.Handle("GET /readyz", httpserver.Adapt(func(w http.ResponseWriter, req *http.Request) error {
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, req *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		for _, probe := range r.probes {
 			if err := probe.Check(ctx); err != nil {
-				return httpserver.ServiceUnavailable(probe.Name() + ": " + err.Error())
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{
+					"status": "not_ready",
+					"error":  probe.Name() + ": " + err.Error(),
+				})
+				return
 			}
 		}
-		return httpserver.WriteJSON(w, http.StatusOK, map[string]string{"status": "ready"})
-	}))
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
+	})
+}
+
+func writeJSON(w http.ResponseWriter, status int, body any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(body)
 }

@@ -2,7 +2,7 @@ package httpserver
 
 import (
 	"context"
-	"log/slog"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -10,8 +10,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
-
-const HeaderRequestID = "X-Request-ID"
 
 type Config struct {
 	Addr  string
@@ -21,8 +19,6 @@ type Config struct {
 type Route interface {
 	Register(mux *http.ServeMux)
 }
-
-type Middleware func(http.Handler) http.Handler
 
 type RouteParams struct {
 	fx.In
@@ -49,29 +45,8 @@ func RegisterRoutes(params RouteParams) {
 	}
 }
 
-func NewHandler(
-	mux *http.ServeMux,
-	logger *zap.Logger,
-	stdLogger *slog.Logger,
-	cfg Config,
-	authMiddleware func(http.Handler) http.Handler,
-) http.Handler {
-	handler := http.Handler(mux)
-	handler = requestIDMiddleware(handler)
-	handler = recoverMiddleware(logger, handler)
-	if authMiddleware != nil {
-		handler = authMiddleware(handler)
-	}
-	handler = accessLogMiddleware(logger.Named("http"), handler)
-	if cfg.Debug {
-		handler = corsMiddleware(handler)
-	}
-
-	if stdLogger != nil {
-		_ = stdLogger
-	}
-
-	return handler
+func NewHandler(mux *http.ServeMux) http.Handler {
+	return mux
 }
 
 func RunServer(lc fx.Lifecycle, handler http.Handler, cfg Config, logger *zap.Logger) {
@@ -88,13 +63,18 @@ func RunServer(lc fx.Lifecycle, handler http.Handler, cfg Config, logger *zap.Lo
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			listener, err := net.Listen("tcp", addr)
+			if err != nil {
+				return err
+			}
+
 			go func() {
 				displayAddr := addr
 				if strings.HasPrefix(displayAddr, ":") {
 					displayAddr = "localhost" + displayAddr
 				}
 				logger.Named("server").Info("starting server", zap.String("address", displayAddr))
-				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				if err := srv.Serve(listener); err != nil && err != http.ErrServerClosed {
 					logger.Named("server").Error("failed to start server", zap.Error(err))
 				}
 			}()

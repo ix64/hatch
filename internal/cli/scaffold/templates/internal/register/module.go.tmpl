@@ -1,9 +1,6 @@
 package register
 
 import (
-	"log/slog"
-	"net/http"
-
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -19,29 +16,26 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Provide(func(vp *viper.Viper) (*config.Config, error) {
-			return core.LoadConfig[config.Config](vp, core.LoadConfigOptions[config.Config]{
-				Defaults: config.Defaults(),
-				Validate: config.Validate,
-			})
-		}),
+		fx.Provide(loadConfig),
 		fx.Provide(newLoggingConfig),
 		fx.Provide(logging.NewLogger),
-		fx.Provide(logging.NewStdLogger),
 		fx.Provide(newHTTPConfig),
 		fx.Provide(httpserver.NewMux),
-		fx.Provide(newHTTPHandler),
+		fx.Provide(httpserver.NewHandler),
 		fx.Provide(httpserver.AsRoute(core.NewBuildInfoRoute)),
 		fx.Provide(httpserver.AsRoute(NewRootRoute)),
 		fx.Provide(httpserver.AsRoute(health.NewRoute)),
 		fx.Invoke(httpserver.RegisterRoutes),
 		fx.Invoke(httpserver.RunServer),
-		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
-			l := &fxevent.ZapLogger{Logger: logger.Named("fx")}
-			l.UseLogLevel(zapcore.DebugLevel)
-			return l
-		}),
+		fx.WithLogger(newFxLogger),
 	)
+}
+
+func loadConfig(vp *viper.Viper) (*config.Config, error) {
+	return core.LoadConfig[config.Config](vp, core.LoadConfigOptions[config.Config]{
+		Defaults: config.Defaults(),
+		Validate: config.Validate,
+	})
 }
 
 func newLoggingConfig(cfg *config.Config) logging.Config {
@@ -52,6 +46,8 @@ func newHTTPConfig(cfg *config.Config) httpserver.Config {
 	return cfg.Server
 }
 
-func newHTTPHandler(mux *http.ServeMux, logger *zap.Logger, stdLogger *slog.Logger, cfg httpserver.Config) http.Handler {
-	return httpserver.NewHandler(mux, logger, stdLogger, cfg, nil)
+func newFxLogger(logger *zap.Logger) fxevent.Logger {
+	l := &fxevent.ZapLogger{Logger: logger.Named("fx")}
+	l.UseLogLevel(zapcore.DebugLevel)
+	return l
 }

@@ -137,7 +137,6 @@ func buildGocronJob(reg JobRegistration, baseLogger *zap.Logger) (gocron.JobDefi
 
 	jobOpts := []gocron.JobOption{
 		gocron.WithName(name),
-		gocron.WithContext(context.Background()),
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(func(jobID uuid.UUID, jobName string) {
 				logger.Debug("job starting", zap.String("job_name", jobName))

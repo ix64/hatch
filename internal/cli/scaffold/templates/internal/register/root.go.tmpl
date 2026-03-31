@@ -1,6 +1,7 @@
 package register
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/ix64/hatch/httpserver"
@@ -13,10 +14,12 @@ func NewRootRoute() httpserver.Route {
 }
 
 func (r *rootRoute) Register(mux *http.ServeMux) {
-	mux.Handle("GET /{$}", httpserver.Adapt(func(w http.ResponseWriter, req *http.Request) error {
-		return httpserver.WriteJSON(w, http.StatusOK, map[string]string{
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]string{
 			"service": "{{ .BinaryName }}",
 			"status":  "ok",
 		})
-	}))
+	})
 }

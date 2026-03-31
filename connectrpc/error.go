@@ -6,8 +6,6 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-
-	"github.com/ix64/hatch/httpserver"
 )
 
 func ValidateID(id int64, name string) (int64, error) {
@@ -27,9 +25,9 @@ func AsError(err error) error {
 		return err
 	}
 
-	var problem *httpserver.Problem
-	if errors.As(err, &problem) {
-		return connect.NewError(codeFromHTTPStatus(problem.Status), errors.New(problemMessage(problem)))
+	var statusErr interface{ StatusCode() int }
+	if errors.As(err, &statusErr) {
+		return connect.NewError(codeFromHTTPStatus(statusErr.StatusCode()), errors.New(errorMessage(err)))
 	}
 
 	return connect.NewError(connect.CodeInternal, err)
@@ -63,15 +61,13 @@ func codeFromHTTPStatus(status int) connect.Code {
 	}
 }
 
-func problemMessage(problem *httpserver.Problem) string {
-	if problem == nil {
+func errorMessage(err error) string {
+	if err == nil {
 		return "unexpected error"
 	}
-	if problem.Detail != "" {
-		return problem.Detail
+	var carrier interface{ ConnectMessage() string }
+	if errors.As(err, &carrier) {
+		return carrier.ConnectMessage()
 	}
-	if problem.Title != "" {
-		return problem.Title
-	}
-	return "unexpected error"
+	return err.Error()
 }

@@ -2,6 +2,7 @@ package secret
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -36,7 +37,13 @@ type OpenBaoOptions struct {
 
 type OpenBaoStore struct {
 	client *openbao.Client
-	kv     *openbao.KVv2
+	kv     openBaoKV
+}
+
+type openBaoKV interface {
+	Get(ctx context.Context, secretPath string) (*openbao.KVSecret, error)
+	Put(ctx context.Context, secretPath string, data map[string]interface{}, opts ...openbao.KVOption) (*openbao.KVSecret, error)
+	DeleteMetadata(ctx context.Context, secretPath string) error
 }
 
 func NewOpenBaoStore(opts OpenBaoOptions) (Store, error) {
@@ -147,9 +154,22 @@ func (s *OpenBaoStore) PutString(ctx context.Context, path, key, value string) (
 	if key == "" {
 		key = "value"
 	}
-	if err := s.PutFields(ctx, path, map[string]string{key: value}); err != nil {
+
+	path = strings.Trim(path, "/")
+	if path == "" {
+		return "", fmt.Errorf("secret path is empty")
+	}
+
+	secretData, err := s.readSecretData(ctx, path)
+	if err != nil {
 		return "", err
 	}
+	secretData[key] = value
+
+	if _, err := s.kv.Put(ctx, path, secretData); err != nil {
+		return "", fmt.Errorf("write openbao secret %q failed: %w", path, err)
+	}
+
 	return BuildRef(path, key), nil
 }
 
@@ -178,8 +198,42 @@ func (s *OpenBaoStore) Delete(ctx context.Context, ref string) error {
 	if err != nil {
 		return err
 	}
-	if err := s.kv.DeleteMetadata(ctx, r.Path); err != nil {
-		return fmt.Errorf("delete openbao secret %q failed: %w", r.Path, err)
+
+	secretData, err := s.readSecretData(ctx, r.Path)
+	if err != nil {
+		return err
+	}
+	if _, ok := secretData[r.Key]; !ok {
+		return fmt.Errorf("secret key %q not found in %q", r.Key, r.Path)
+	}
+
+	delete(secretData, r.Key)
+	if len(secretData) == 0 {
+		if err := s.kv.DeleteMetadata(ctx, r.Path); err != nil {
+			return fmt.Errorf("delete openbao secret %q failed: %w", r.Path, err)
+		}
+		return nil
+	}
+
+	if _, err := s.kv.Put(ctx, r.Path, secretData); err != nil {
+		return fmt.Errorf("write openbao secret %q failed: %w", r.Path, err)
 	}
 	return nil
+}
+
+func (s *OpenBaoStore) readSecretData(ctx context.Context, path string) (map[string]interface{}, error) {
+	secret, err := s.kv.Get(ctx, path)
+	switch {
+	case err == nil:
+	case errors.Is(err, openbao.ErrSecretNotFound):
+		return map[string]interface{}{}, nil
+	default:
+		return nil, fmt.Errorf("read openbao secret %q failed: %w", path, err)
+	}
+
+	data := make(map[string]interface{}, len(secret.Data))
+	for key, value := range secret.Data {
+		data[key] = value
+	}
+	return data, nil
 }
