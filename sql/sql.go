@@ -54,7 +54,7 @@ func NewDB(lc fx.Lifecycle, logger *zap.Logger, cfg Config) (*sql.DB, error) {
 	return db, nil
 }
 
-func RunMigrations(ctx context.Context, logger *zap.Logger, dsn string, migrations fs.FS) error {
+func ApplyMigrations(ctx context.Context, logger *zap.Logger, dsn string, migrations fs.FS) error {
 	wd, err := atlasexec.NewWorkingDir(atlasexec.WithMigrations(migrations))
 	if err != nil {
 		return fmt.Errorf("failed to load migrations directory: %w", err)
@@ -77,7 +77,7 @@ func RunMigrations(ctx context.Context, logger *zap.Logger, dsn string, migratio
 	return nil
 }
 
-func CheckMigrations(ctx context.Context, logger *zap.Logger, dsn string, migrations fs.FS) (bool, error) {
+func AssertMigrations(ctx context.Context, logger *zap.Logger, dsn string, migrations fs.FS) (bool, error) {
 	wd, err := atlasexec.NewWorkingDir(atlasexec.WithMigrations(migrations))
 	if err != nil {
 		return false, fmt.Errorf("failed to load migrations directory: %w", err)
@@ -98,4 +98,29 @@ func CheckMigrations(ctx context.Context, logger *zap.Logger, dsn string, migrat
 		logger.Info("missing migration", zap.String("version", v.Version), zap.String("description", v.Description))
 	}
 	return len(ret.Pending) == 0, nil
+}
+
+func RunMigrations(lc fx.Lifecycle, cfg Config, logger *zap.Logger, migrations fs.FS) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			dsn := cfg.MigrationDSN
+			if dsn == "" {
+				dsn = cfg.DSN
+			}
+
+			if cfg.Migrate {
+				if err := ApplyMigrations(ctx, logger, dsn, migrations); err != nil {
+					return fmt.Errorf("check migration failed: %w", err)
+				}
+			} else {
+				if ok, err := AssertMigrations(ctx, logger, dsn, migrations); err != nil {
+					return fmt.Errorf("check migration failed: %w", err)
+				} else if !ok {
+					return fmt.Errorf("manually version migration required")
+				}
+			}
+			logger.Info("version migration up to date")
+			return nil
+		},
+	})
 }
