@@ -71,6 +71,7 @@ The generated project assumes:
 
 Inside a generated project, run `hatch tools install` to install codegen and lint dependencies such as `ent`, `buf`, `protoc-gen-go`, `protoc-gen-connect-go`, `atlas`, `golangci-lint`, and `air`.
 You can create a local-only `hatch.local.toml` alongside `hatch.toml` to override project metadata on your machine; generated projects ignore it by default.
+Generated `hatch.toml` files include a Taplo schema directive pointing at `https://github.com/ix64/hatch/raw/main/hatch.schema.json` for editor completion and validation.
 
 ## Typical workflow
 
