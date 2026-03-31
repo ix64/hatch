@@ -80,20 +80,20 @@ After generating a project:
 ```bash
 cd demo
 hatch tools install
-hatch env start --project-dir .
-hatch gen ent --project-dir .
+hatch env start
+hatch gen ent
 go run ./cmd/server serve
 ```
 
 Common follow-up commands:
 
-- `hatch build --project-dir .` builds the production binary
-- `hatch start --project-dir .` runs the built binary using `[run].command` from `hatch.toml`
-- `hatch dev --project-dir .` runs the app with live reload through Air using `[run].command` from `hatch.toml`
-- `hatch env add minio --project-dir .` and similar commands add local dependencies such as MinIO, Mailpit, Valkey, and OpenBao
-- `hatch migrate generate --project-dir . --name init` creates a new Atlas migration
-- `hatch migrate apply --project-dir . --env dev` applies migrations to the configured database
-- `hatch gen rpc --project-dir .` runs protobuf and Connect code generation
+- `hatch build` builds the production binary
+- `hatch start` runs the built binary using `[run].command` from `hatch.toml`
+- `hatch dev` runs the app with live reload through Air using `[run].command` from `hatch.toml`
+- `hatch env add minio` and similar commands add local dependencies such as MinIO, Mailpit, Valkey, and OpenBao
+- `hatch migrate generate --name init` creates a new Atlas migration
+- `hatch migrate apply --env dev` applies migrations to the configured database
+- `hatch gen rpc` runs protobuf and Connect code generation
 
 Ent feature flags are configured in `hatch.toml`:
 
