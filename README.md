@@ -1,5 +1,7 @@
 # hatch
 
+[English](README.md) | [中文](README_ZH.md)
+
 `hatch` is a reusable Go application framework extracted from `sparkcloud/server`.
 
 Hatch provides a strongly opinionated stack for building Go services with:
