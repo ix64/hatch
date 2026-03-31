@@ -17,7 +17,7 @@ const (
 	LocalMetadataFile = "hatch.local.toml"
 	DefaultGo         = "1.26.0"
 	DefaultHatchMod   = "github.com/ix64/hatch"
-	DefaultHatchVer   = "v0.0.0"
+	DefaultHatchVer   = "latest"
 )
 
 type Paths struct {

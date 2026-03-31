@@ -67,10 +67,8 @@ func run(targetDir string, opts options) error {
 	if err := scaffold.WriteProject(targetDir, spec); err != nil {
 		return err
 	}
-	if spec.HatchReplacePath != "" {
-		if err := runGoModTidy(targetDir); err != nil {
-			return err
-		}
+	if err := runGoModTidy(targetDir); err != nil {
+		return err
 	}
 
 	fmt.Printf("initialized %s in %s\n", spec.AppName, targetDir)
