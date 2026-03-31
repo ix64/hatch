@@ -63,6 +63,21 @@ func TestWriteProject(t *testing.T) {
 		t.Fatalf("README.md missing rendered app name:\n%s", readme)
 	}
 
+	compose, err := os.ReadFile(filepath.Join(dir, "dev", "compose.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, snippet := range []string{"postgres:", "name: demo-service_dev"} {
+		if !strings.Contains(string(compose), snippet) {
+			t.Fatalf("dev/compose.yaml missing %q:\n%s", snippet, compose)
+		}
+	}
+	for _, service := range []string{"minio:", "mailpit:", "valkey:", "openbao:"} {
+		if strings.Contains(string(compose), service) {
+			t.Fatalf("dev/compose.yaml unexpectedly includes %q:\n%s", service, compose)
+		}
+	}
+
 	gitignore, err := os.ReadFile(filepath.Join(dir, ".gitignore"))
 	if err != nil {
 		t.Fatal(err)

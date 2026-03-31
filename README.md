@@ -89,6 +89,7 @@ Common follow-up commands:
 - `hatch build --project-dir .` builds the production binary
 - `hatch start --project-dir .` runs the built binary using `[run].command` from `hatch.toml`
 - `hatch dev --project-dir .` runs the app with live reload through Air using `[run].command` from `hatch.toml`
+- `hatch env add minio --project-dir .` and similar commands add local dependencies such as MinIO, Mailpit, Valkey, and OpenBao
 - `hatch migrate generate --project-dir . --name init` creates a new Atlas migration
 - `hatch migrate apply --project-dir . --env dev` applies migrations to the configured database
 - `hatch gen rpc --project-dir .` runs protobuf and Connect code generation
@@ -116,7 +117,7 @@ The `hatch` CLI currently provides eight command groups:
 - `hatch build` builds the application binary using `hatch.toml`
 - `hatch start` runs the built application binary using `[run].command` from `hatch.toml`
 - `hatch dev` runs the application with live reload via Air using `[run].command` from `hatch.toml`
-- `hatch env start|stop|clean` manages local development dependencies via Docker Compose
+- `hatch env start|stop|clean|add` manages local development dependencies via Docker Compose
 - `hatch gen ent [--scratch]` and `hatch gen rpc` manage code generation
 - `hatch migrate generate|hash|lint|apply` manages Atlas migrations
 - `hatch tools install` installs local codegen and lint tools

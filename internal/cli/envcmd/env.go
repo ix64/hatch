@@ -56,6 +56,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(newActionCmd("start"))
 	cmd.AddCommand(newActionCmd("stop"))
 	cmd.AddCommand(newActionCmd("clean"))
+	cmd.AddCommand(newAddCmd())
 	return cmd
 }
 
