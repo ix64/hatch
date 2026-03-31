@@ -1,0 +1,18 @@
+#:schema https://json.schemastore.org/any.json
+
+[build]
+  args_bin = [
+{{- range .Run.Command }}
+    "{{ . }}",
+{{- end }}
+  ]
+  bin = "./tmp/{{ .BinaryName }}"
+  cmd = "go build -o ./tmp/{{ .BinaryName }} {{ .Paths.MainPackage }}"
+  entrypoint = ["./tmp/{{ .BinaryName }}"]
+  exclude_dir = ["tmp", "build", ".git"]
+
+[misc]
+  clean_on_exit = true
+
+[proxy]
+  enabled = false

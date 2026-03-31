@@ -1,0 +1,11 @@
+package main
+
+import (
+	internal "{{ .ModulePath }}/cmd/server/internal"
+
+	_ "golang.org/x/crypto/x509roots/fallback"
+)
+
+func main() {
+	internal.Execute()
+}

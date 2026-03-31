@@ -1,0 +1,52 @@
+package internal
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/ix64/hatch/core"
+)
+
+var cfgFile string
+var cfgViper *viper.Viper
+
+var rootCmd = &cobra.Command{
+	Use:   "{{ .BinaryName }}",
+	Short: "{{ .AppName }}",
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func init() {
+	cobra.OnInitialize(initConfig)
+	core.BindConfig(rootCmd, &cfgFile, core.ConfigOptions{
+		DefaultName: "config",
+		DefaultType: "toml",
+		SearchPaths: []string{"."},
+	})
+	rootCmd.AddCommand(core.NewVersionCommand())
+}
+
+func initConfig() {
+	var err error
+	cfgViper, err = core.NewViper(cfgFile, core.ConfigOptions{
+		DefaultName: "config",
+		DefaultType: "toml",
+		SearchPaths: []string{"."},
+	})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	if used := cfgViper.ConfigFileUsed(); used != "" {
+		fmt.Fprintln(os.Stderr, "Using config file:", used)
+	}
+}

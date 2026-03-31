@@ -1,0 +1,13 @@
+lint {
+  destructive {
+    error = false
+  }
+}
+
+env "dev" {
+  dev = "docker://postgres/18/dev?search_path=public"
+  url = "postgres://postgres:postgres@localhost:25432/app?search_path=public&sslmode=disable"
+  migration {
+    dir = "file://{{ .Paths.MigrationsDir }}"
+  }
+}

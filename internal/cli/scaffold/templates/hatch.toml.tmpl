@@ -1,0 +1,48 @@
+module_path = "{{ .ModulePath }}"
+app_name = "{{ .AppName }}"
+binary_name = "{{ .BinaryName }}"
+go_version = "{{ .GoVersion }}"
+hatch_module_path = "{{ .HatchModulePath }}"
+hatch_version = "{{ .HatchVersion }}"
+{{- if .HatchReplacePath }}
+hatch_replace_path = "{{ .HatchReplacePath }}"
+{{- end }}
+
+[paths]
+main_package = "{{ .Paths.MainPackage }}"
+build_output = "{{ .Paths.BuildOutput }}"
+config_file = "{{ .Paths.ConfigFile }}"
+config_example = "{{ .Paths.ConfigExample }}"
+atlas_file = "{{ .Paths.AtlasFile }}"
+dev_compose = "{{ .Paths.DevCompose }}"
+schema_dir = "{{ .Paths.SchemaDir }}"
+composite_dir = "{{ .Paths.CompositeDir }}"
+migrations_dir = "{{ .Paths.MigrationsDir }}"
+ent_dir = "{{ .Paths.EntDir }}"
+
+[ent]
+features = [
+{{- range .Ent.Features }}
+  "{{ . }}",
+{{- end }}
+]
+
+[run]
+command = [
+{{- range .Run.Command }}
+  "{{ . }}",
+{{- end }}
+]
+
+[proto]
+enabled = {{ .Proto.Enabled }}
+source = "{{ .Proto.Source }}"
+dir = "{{ .Proto.Dir }}"
+out_dir = "{{ .Proto.OutDir }}"
+{{- if .Proto.GitRepo }}
+git_repo = "{{ .Proto.GitRepo }}"
+git_branch = "{{ .Proto.GitBranch }}"
+{{- end }}
+{{- if .Proto.LocalOverrideDir }}
+local_override_dir = "{{ .Proto.LocalOverrideDir }}"
+{{- end }}

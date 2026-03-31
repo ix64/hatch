@@ -1,0 +1,33 @@
+package internal
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+	"go.uber.org/fx"
+
+	"{{ .ModulePath }}/internal/register"
+)
+
+var serveCmd = &cobra.Command{
+	Use:   "serve",
+	Short: "Start the HTTP API server",
+	RunE:  runServe,
+}
+
+func init() {
+	rootCmd.AddCommand(serveCmd)
+}
+
+func runServe(cmd *cobra.Command, args []string) error {
+	if cfgViper == nil {
+		return fmt.Errorf("config is not initialized")
+	}
+
+	app := fx.New(
+		register.Module(),
+		fx.Supply(cfgViper),
+	)
+	app.Run()
+	return nil
+}

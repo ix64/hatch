@@ -1,0 +1,29 @@
+package config
+
+import (
+	"fmt"
+
+	"github.com/ix64/hatch/httpserver"
+	"github.com/ix64/hatch/logging"
+)
+
+type Config struct {
+	Server httpserver.Config `mapstructure:"server"`
+	Logger logging.Config    `mapstructure:"logger"`
+}
+
+func Defaults() map[string]any {
+	return map[string]any{
+		"server.addr":  ":9580",
+		"server.debug": true,
+		"logger.level": "DEBUG",
+		"logger.debug": true,
+	}
+}
+
+func Validate(cfg *Config) error {
+	if cfg == nil {
+		return fmt.Errorf("config is required")
+	}
+	return nil
+}

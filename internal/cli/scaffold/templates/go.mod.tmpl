@@ -1,0 +1,19 @@
+module {{ .ModulePath }}
+
+go {{ .GoVersion }}
+
+require (
+	connectrpc.com/connect v1.19.1
+	entgo.io/ent v0.14.6
+	github.com/spf13/cobra v1.10.2
+	github.com/spf13/viper v1.21.0
+	{{ .HatchModulePath }} {{ .HatchVersion }}
+	go.uber.org/fx v1.24.0
+	go.uber.org/zap v1.27.1
+	golang.org/x/crypto/x509roots/fallback v0.0.0-20260323153451-8400f4a93807
+	google.golang.org/protobuf v1.36.11
+)
+{{- if .HatchReplacePath }}
+
+replace {{ .HatchModulePath }} => {{ .HatchReplacePath }}
+{{- end }}

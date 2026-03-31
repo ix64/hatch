@@ -1,0 +1,20 @@
+# {{ .AppName }}
+
+由 `hatch` 初始化的 Go 服务骨架。
+
+## 快速开始
+
+```bash
+hatch tools install
+hatch gen ent --project-dir .
+hatch env start --project-dir .
+go run ./cmd/server serve
+```
+
+常用命令已经收敛到 `hatch` CLI：
+
+- `hatch build --project-dir .`
+- `hatch start --project-dir .`
+- `hatch dev --project-dir .`
+- `hatch migrate generate --project-dir . --name init`
+- `hatch gen rpc --project-dir .`
